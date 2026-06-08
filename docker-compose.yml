@@ -1,0 +1,72 @@
+services:
+
+  db:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  snipeit:
+    image: snipe/snipe-it:latest
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8080:80"
+    environment:
+      APP_KEY: ${APP_KEY}
+      APP_URL: ${APP_URL}
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: ${MYSQL_DATABASE}
+      DB_USERNAME: ${MYSQL_USER}
+      DB_PASSWORD: ${MYSQL_PASSWORD}
+      TZ: ${TZ}
+      MAIL_DRIVER: log
+    volumes:
+      - snipeit_data:/var/lib/snipeit
+    networks:
+      - internal
+      - external
+
+  kiosk:
+    build:
+      context: ./kiosk
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - snipeit
+    ports:
+      - "3000:3000"
+    environment:
+      SNIPEIT_BASE_URL: http://snipeit:80
+      SNIPEIT_API_TOKEN: ${SNIPEIT_API_TOKEN}
+      KIOSK_FINISH_DELAY: ${KIOSK_FINISH_DELAY:-5000}
+      KIOSK_RESET_DELAY: ${KIOSK_RESET_DELAY:-15000}
+    networks:
+      - internal
+      - external
+
+volumes:
+  db_data:
+  snipeit_data:
+
+networks:
+  internal:
+    driver: bridge
+  external:
+    driver: bridge
