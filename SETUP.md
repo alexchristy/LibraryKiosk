@@ -24,17 +24,7 @@ Edit `.env` and fill in:
 - `TZ` — your timezone (e.g. `America/Chicago`)
 - Leave `SNIPEIT_API_TOKEN` blank for now
 
-### 3. Generate the frontend dependency lockfile
-
-Docker's build network can be slow resolving npm packages. Run this once to generate a `package-lock.json` so subsequent builds use `npm ci` instead of resolving everything from scratch:
-
-```bash
-docker run --rm -v "$(pwd)/kiosk":/app -w /app node:20-alpine npm install
-```
-
-This writes `kiosk/package-lock.json` (and a local `node_modules/` folder that Docker ignores during builds). You only need to re-run this if you change `package.json`.
-
-### 4. Start the stack
+### 3. Start the stack
 
 ```bash
 docker compose up -d
@@ -42,13 +32,13 @@ docker compose up -d
 
 Wait ~60 seconds for Snipe-IT to finish its first-run migration.
 
-### 5. Complete Snipe-IT initial setup
+### 4. Complete Snipe-IT initial setup
 
 Open http://localhost:8080 and follow the setup wizard:
 - Create your admin account
 - Set your organization name, currency, etc.
 
-### 6. Configure Snipe-IT for your school
+### 5. Configure Snipe-IT for your school
 
 In the Snipe-IT admin panel:
 1. **Add asset categories** — e.g. "Laptop", "Book", "Charger"
@@ -57,7 +47,7 @@ In the Snipe-IT admin panel:
 4. **Add assets** — each item gets a unique asset tag matching what's on the physical barcode/QR label
 5. Go to your **Profile → API Tokens** and generate a new token
 
-### 7. Add the API token
+### 6. Add the API token
 
 Edit `.env` and set `SNIPEIT_API_TOKEN` to the token you just created, then restart:
 
@@ -65,7 +55,7 @@ Edit `.env` and set `SNIPEIT_API_TOKEN` to the token you just created, then rest
 docker compose restart kiosk
 ```
 
-### 8. Access the kiosk
+### 7. Access the kiosk
 
 Open http://localhost:3000 in a browser, set it to full-screen (F11), and you're ready.
 

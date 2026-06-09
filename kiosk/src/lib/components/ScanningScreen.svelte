@@ -8,6 +8,51 @@
   let scanning = false;
   let lastError = '';
 
+  function showDuplicate(name: string, category: string, assetTag: string) {
+    document.getElementById('dup-toast')?.remove();
+
+    const categoryLabel = category || 'item';
+    const el = document.createElement('div');
+    el.id = 'dup-toast';
+    el.innerHTML = `
+      <div style="font-size:2.8rem;margin-bottom:0.5rem;line-height:1">⚠️</div>
+      <div style="font-size:1.15rem;font-weight:600;opacity:0.9;margin-bottom:0.4rem;text-transform:uppercase;letter-spacing:0.08em">Already scanned this</div>
+      <div style="font-size:2.2rem;font-weight:900;margin-bottom:0.5rem;line-height:1.15">${categoryLabel}</div>
+      ${name !== assetTag ? `<div style="font-size:1.2rem;font-weight:500;opacity:0.85;margin-bottom:0.6rem">${name}</div>` : ''}
+      <div style="font-size:1rem;font-family:monospace;background:rgba(0,0,0,0.25);padding:0.25rem 0.75rem;border-radius:6px;display:inline-block;letter-spacing:0.05em">#${assetTag}</div>
+    `;
+    Object.assign(el.style, {
+      position: 'fixed',
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%) scale(0.9)',
+      background: '#b91c1c',
+      color: '#fff',
+      padding: '2rem 3rem',
+      borderRadius: '20px',
+      textAlign: 'center',
+      zIndex: '9999',
+      pointerEvents: 'none',
+      opacity: '0',
+      transition: 'opacity 0.15s ease, transform 0.15s ease',
+      boxShadow: '0 12px 48px rgba(0,0,0,0.5)',
+      minWidth: '340px',
+      maxWidth: '480px',
+    });
+    document.body.appendChild(el);
+
+    requestAnimationFrame(() => {
+      el.style.opacity = '1';
+      el.style.transform = 'translate(-50%, -50%) scale(1)';
+    });
+
+    setTimeout(() => {
+      el.style.opacity = '0';
+      el.style.transform = 'translate(-50%, -50%) scale(0.9)';
+      setTimeout(() => el.remove(), 200);
+    }, 2500);
+  }
+
   // Barcode scanners act as keyboard: rapid chars then Enter.
   // We capture globally so the input field never needs focus.
   function onKeydown(e: KeyboardEvent) {
@@ -38,14 +83,8 @@
 
     // Duplicate check
     if ($scannedTagSet.has(tag)) {
-      session.addItem({
-        assetId: 0,
-        assetTag: tag,
-        name: tag,
-        category: '',
-        action: 'already_scanned',
-        timestamp: Date.now(),
-      });
+      const existing = $session.items.find(i => i.assetTag === tag);
+      showDuplicate(existing?.name || tag, existing?.category || '', existing?.assetTag || tag);
       playTone('warn');
       return;
     }
