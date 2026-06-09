@@ -152,6 +152,13 @@
       }
 
       const action: ItemAction = data.action;
+
+      if (action === 'other_user') {
+        showCheckedOut(data.assignedTo ?? 'another student', data.name ?? tag, data.category ?? '', data.assetTag ?? tag);
+        playTone('error');
+        return;
+      }
+
       session.addItem({
         assetId: data.assetId ?? 0,
         assetTag: data.assetTag ?? tag,
@@ -160,10 +167,6 @@
         action,
         timestamp: Date.now(),
       });
-
-      if (action === 'other_user' && data.assignedTo) {
-        showCheckedOut(data.assignedTo, data.name ?? tag, data.category ?? '', data.assetTag ?? tag);
-      }
 
       playTone(action === 'checked_out' || action === 'checked_in' ? 'success' : 'error');
     } catch {
