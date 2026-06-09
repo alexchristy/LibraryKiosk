@@ -30,6 +30,66 @@
 
   $: active = categories.find(c => c.name === activeCategory);
   $: totalOut = categories.reduce((n, c) => n + c.students.reduce((m, s) => m + s.items.length, 0), 0);
+
+  function printReport(filterCategory?: string) {
+    const cats = filterCategory ? categories.filter(c => c.name === filterCategory) : categories;
+    const totalItems = cats.reduce((n, c) => n + c.students.reduce((m, s) => m + s.items.length, 0), 0);
+    const now = new Date().toLocaleString();
+
+    let sections = '';
+    for (const cat of cats) {
+      const catTotal = cat.students.reduce((n, s) => n + s.items.length, 0);
+      let studentRows = '';
+      for (const student of cat.students) {
+        let itemRows = student.items.map(item =>
+          `<div class="item-row"><span class="item-model">${item.model}</span><span class="item-tag">${item.assetTag}</span></div>`
+        ).join('');
+        studentRows += `<div class="student-block">
+          <div class="student-header">${student.name} <span class="student-username">(${student.username})</span></div>
+          <div class="items">${itemRows}</div>
+        </div>`;
+      }
+      sections += `<div class="cat-section">
+        <div class="cat-title">${cat.name} <span class="cat-count">${catTotal} item${catTotal !== 1 ? 's' : ''}</span></div>
+        ${studentRows}
+      </div>`;
+    }
+
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8">
+      <title>Library Checkouts${filterCategory ? ' — ' + filterCategory : ''}</title>
+      <style>
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{font-family:Arial,sans-serif;font-size:12px;color:#111;padding:20px 28px}
+        .report-header{margin-bottom:18px;padding-bottom:10px;border-bottom:3px solid #1a1a2e}
+        .report-header h1{font-size:18px;font-weight:800;color:#1a1a2e;margin-bottom:3px}
+        .report-meta{font-size:10px;color:#666}
+        .cat-section{margin-bottom:20px;page-break-inside:avoid}
+        .cat-title{font-size:14px;font-weight:700;color:#fff;background:#1a1a2e;padding:5px 10px;border-radius:4px;margin-bottom:8px}
+        .cat-count{font-weight:400;font-size:11px;opacity:0.8;margin-left:6px}
+        .student-block{margin:0 4px 10px 4px;border:1px solid #e5e7eb;border-radius:6px;overflow:hidden}
+        .student-header{background:#f0f4ff;padding:5px 10px;font-size:12px;font-weight:700;color:#1a1a2e;border-bottom:1px solid #e5e7eb}
+        .student-username{font-weight:400;color:#555}
+        .item-row{display:flex;justify-content:space-between;padding:4px 10px;font-size:11px;border-bottom:1px solid #f3f4f6}
+        .item-row:last-child{border-bottom:none}
+        .item-row:nth-child(even){background:#fafafa}
+        .item-model{color:#333}
+        .item-tag{font-family:monospace;color:#888;white-space:nowrap;margin-left:12px}
+        @media print{body{padding:10px 16px}.cat-section{page-break-inside:avoid}}
+      </style>
+    </head><body>
+      <div class="report-header">
+        <h1>Library Kiosk — ${filterCategory ? filterCategory + ' Checkouts' : 'All Current Checkouts'}</h1>
+        <div class="report-meta">Generated: ${now} &nbsp;·&nbsp; ${totalItems} item${totalItems !== 1 ? 's' : ''} out</div>
+      </div>
+      ${sections}
+    </body></html>`;
+
+    const win = window.open('', '_blank', 'width=820,height=680');
+    if (!win) return;
+    win.document.write(html);
+    win.document.close();
+    win.focus();
+  }
 </script>
 
 <!-- Backdrop -->
@@ -44,7 +104,12 @@
         <span class="total-badge">{totalOut} item{totalOut !== 1 ? 's' : ''} out</span>
       {/if}
     </div>
-    <button class="close-btn" on:click={onClose}>✕</button>
+    <div class="header-right">
+      {#if !loading && !fetchError && categories.length > 0}
+        <button class="print-all-btn" on:click={() => printReport()}>🖨 Print All</button>
+      {/if}
+      <button class="close-btn" on:click={onClose}>✕</button>
+    </div>
   </div>
 
   {#if loading}
@@ -74,6 +139,11 @@
     <!-- Student list -->
     <div class="list">
       {#if active && active.students.length > 0}
+        <div class="list-toolbar">
+          <button class="print-cat-btn" on:click={() => printReport(activeCategory)}>
+            🖨 Print {activeCategory}
+          </button>
+        </div>
         {#each active.students as student}
           <div class="student-card">
             <div class="student-name">
@@ -144,6 +214,26 @@
     padding: 0.2rem 0.7rem;
     border-radius: 999px;
   }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .print-all-btn {
+    background: rgba(255,255,255,0.15);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 0.4rem 0.9rem;
+    cursor: pointer;
+    transition: background 0.15s;
+    white-space: nowrap;
+  }
+  .print-all-btn:hover { background: rgba(255,255,255,0.25); }
 
   .close-btn {
     background: rgba(255,255,255,0.15);
@@ -253,6 +343,25 @@
     color: #888;
     white-space: nowrap;
   }
+
+  .list-toolbar {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 0.5rem;
+  }
+
+  .print-cat-btn {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #1a1a2e;
+    background: #f0f4ff;
+    border: 1px solid #dde4ff;
+    border-radius: 8px;
+    padding: 0.35rem 0.85rem;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .print-cat-btn:hover { background: #dde4ff; }
 
   /* ── States ── */
   .state-msg {
