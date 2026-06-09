@@ -48,6 +48,7 @@ function createSession() {
 
   let finishTimer: ReturnType<typeof setTimeout> | null = null;
   let resetTimer:  ReturnType<typeof setTimeout> | null = null;
+  let finishShown = false;
 
   function clearTimers() {
     if (finishTimer) clearTimeout(finishTimer);
@@ -58,11 +59,15 @@ function createSession() {
 
   function scheduleTimers() {
     clearTimers();
-    update(s => ({ ...s, showFinish: false, lastActivity: Date.now() }));
+    update(s => ({ ...s, lastActivity: Date.now() }));
 
-    finishTimer = setTimeout(() => {
-      update(s => ({ ...s, showFinish: true }));
-    }, FINISH_DELAY);
+    // Once the finish button has appeared, keep it visible for the rest of the session.
+    if (!finishShown) {
+      finishTimer = setTimeout(() => {
+        finishShown = true;
+        update(s => ({ ...s, showFinish: true }));
+      }, FINISH_DELAY);
+    }
 
     resetTimer = setTimeout(() => {
       reset();
@@ -70,6 +75,7 @@ function createSession() {
   }
 
   function startSession(user: SessionUser) {
+    finishShown = false;
     set({ phase: 'scanning', user, items: [], lastActivity: Date.now(), showFinish: false });
     scheduleTimers();
   }
@@ -84,12 +90,14 @@ function createSession() {
   }
 
   function finish() {
+    finishShown = false;
     clearTimers();
     update(s => ({ ...s, phase: 'complete', showFinish: false }));
     setTimeout(() => reset(), 4000);
   }
 
   function reset() {
+    finishShown = false;
     clearTimers();
     set({ ...initial, lastActivity: Date.now() });
   }

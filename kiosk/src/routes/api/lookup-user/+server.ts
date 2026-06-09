@@ -11,7 +11,7 @@ export const GET: RequestHandler = async ({ url }) => {
   try {
     const user = await findUserByAdmissionNumber(admission);
     if (!user) return json({ error: 'Student not found' }, { status: 404 });
-    return json({ id: user.id, name: user.name, admissionNumber: user.employee_num });
+    return json({ id: user.id, name: user.name, admissionNumber: user.username });
   } catch (e) {
     console.error(e);
     return json({ error: 'Could not reach asset system' }, { status: 502 });

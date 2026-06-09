@@ -48,8 +48,8 @@ export interface SnipeAsset {
 export async function findUserByAdmissionNumber(admissionNumber: string): Promise<SnipeUser | null> {
   const data = await get(`/users?search=${encodeURIComponent(admissionNumber)}&limit=50`);
   const users: SnipeUser[] = data.rows ?? [];
-  // Exact match on employee_num
-  const match = users.find(u => u.employee_num === admissionNumber);
+  // Exact match on username (admission numbers are stored as Snipe-IT usernames)
+  const match = users.find(u => u.username === admissionNumber);
   return match ?? null;
 }
 
