@@ -28,6 +28,7 @@ export const POST: RequestHandler = async ({ request }) => {
         assetTag: asset.asset_tag,
         name: asset.name,
         category: asset.category?.name ?? 'Item',
+        assignedTo: asset.assigned_to.name,
       });
     }
 
