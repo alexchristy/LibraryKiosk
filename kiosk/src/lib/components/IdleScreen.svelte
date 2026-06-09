@@ -1,5 +1,8 @@
 <script lang="ts">
   import { session } from '$lib/stores/session';
+  import CheckoutModal from './CheckoutModal.svelte';
+
+  let modalOpen = false;
 
   let input = '';
   let error = '';
@@ -73,6 +76,14 @@
 
   <p class="hint">Scan your QR code or type your number, then press Enter</p>
 </div>
+
+<button class="report-btn" on:click={() => modalOpen = true}>
+  📋 View Current Checkouts
+</button>
+
+{#if modalOpen}
+  <CheckoutModal onClose={() => modalOpen = false} />
+{/if}
 
 <style>
   .idle-screen {
@@ -148,4 +159,20 @@
   }
 
   .hint { font-size: 1.1rem; color: #888; margin: 0; }
+
+  .report-btn {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    padding: 0.6rem 1.2rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    background: #f0f4ff;
+    color: #1a1a2e;
+    border: 2px solid #dde4ff;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .report-btn:hover { background: #dde4ff; border-color: #b8c8ff; }
 </style>

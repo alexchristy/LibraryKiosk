@@ -40,6 +40,7 @@ export interface SnipeAsset {
   name: string;
   asset_tag: string;
   serial: string | null;
+  model: { id: number; name: string } | null;
   status_label: { id: number; name: string; status_type: string; status_meta: string };
   assigned_to: { id: number; name: string; type: string } | null;
   category: { id: number; name: string } | null;
@@ -75,5 +76,16 @@ export async function checkinAsset(assetId: number): Promise<{ status: string; m
 
 export async function getUserAssets(userId: number): Promise<SnipeAsset[]> {
   const data = await get(`/hardware?assigned_to=${userId}&limit=500`);
+  return data.rows ?? [];
+}
+
+export async function getAllCheckedOutAssets(): Promise<SnipeAsset[]> {
+  const data = await get('/hardware?limit=1000');
+  const all: SnipeAsset[] = data.rows ?? [];
+  return all.filter(a => a.assigned_to?.type === 'user');
+}
+
+export async function getAllUsers(): Promise<SnipeUser[]> {
+  const data = await get('/users?limit=1000');
   return data.rows ?? [];
 }
