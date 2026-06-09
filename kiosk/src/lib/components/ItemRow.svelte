@@ -18,7 +18,7 @@
 <div class="item-row" class:flash={true}>
   <div class="item-info">
     <span class="item-name">{item.name}</span>
-    <span class="item-tag">#{item.assetTag}</span>
+    <span class="item-tag">{item.assetTag}</span>
     {#if item.category}
       <span class="item-cat">{item.category}</span>
     {/if}

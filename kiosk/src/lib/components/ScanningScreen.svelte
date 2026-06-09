@@ -19,7 +19,7 @@
       <div style="font-size:1.15rem;font-weight:600;opacity:0.9;margin-bottom:0.4rem;text-transform:uppercase;letter-spacing:0.08em">Already scanned this</div>
       <div style="font-size:2.2rem;font-weight:900;margin-bottom:0.5rem;line-height:1.15">${categoryLabel}</div>
       ${name !== assetTag ? `<div style="font-size:1.2rem;font-weight:500;opacity:0.85;margin-bottom:0.6rem">${name}</div>` : ''}
-      <div style="font-size:1rem;font-family:monospace;background:rgba(0,0,0,0.25);padding:0.25rem 0.75rem;border-radius:6px;display:inline-block;letter-spacing:0.05em">#${assetTag}</div>
+      <div style="font-size:1rem;font-family:monospace;background:rgba(0,0,0,0.25);padding:0.25rem 0.75rem;border-radius:6px;display:inline-block;letter-spacing:0.05em">${assetTag}</div>
     `;
     Object.assign(el.style, {
       position: 'fixed',
