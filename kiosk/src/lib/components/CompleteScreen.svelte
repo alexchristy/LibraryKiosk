@@ -3,6 +3,7 @@
 
   $: checkedOut = $session.items.filter(i => i.action === 'checked_out').length;
   $: checkedIn  = $session.items.filter(i => i.action === 'checked_in').length;
+  $: consumed   = $session.items.filter(i => i.action === 'consumed').length;
 </script>
 
 <div class="complete-screen">
@@ -23,7 +24,13 @@
         <span class="desc">{checkedIn === 1 ? 'item' : 'items'} checked in</span>
       </div>
     {/if}
-    {#if checkedOut === 0 && checkedIn === 0}
+    {#if consumed > 0}
+      <div class="summary-item out">
+        <span class="count">{consumed}</span>
+        <span class="desc">{consumed === 1 ? 'consumable' : 'consumables'} taken</span>
+      </div>
+    {/if}
+    {#if checkedOut === 0 && checkedIn === 0 && consumed === 0}
       <p class="none">No items were processed.</p>
     {/if}
   </div>

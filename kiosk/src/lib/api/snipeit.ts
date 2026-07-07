@@ -89,3 +89,34 @@ export async function getAllUsers(): Promise<SnipeUser[]> {
   const data = await get('/users?limit=1000');
   return data.rows ?? [];
 }
+
+export interface SnipeConsumable {
+  id: number;
+  name: string;
+  qty: number;
+  remaining: number;
+  category: { id: number; name: string } | null;
+  model_number: string | null;
+  item_no: string | null;
+}
+
+export async function getConsumableById(id: number): Promise<SnipeConsumable | null> {
+  try {
+    const data = await get(`/consumables/${id}`);
+    if (!data || data.status === 'error') return null;
+    return data as SnipeConsumable;
+  } catch {
+    return null;
+  }
+}
+
+export async function checkoutConsumable(
+  consumableId: number,
+  userId: number,
+  qty: number = 1,
+): Promise<{ status: string; messages?: string }> {
+  return post(`/consumables/${consumableId}/checkout`, {
+    assigned_to: userId,
+    checkout_qty: qty,
+  });
+}

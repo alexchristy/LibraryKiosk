@@ -1,6 +1,6 @@
 import { writable, derived } from 'svelte/store';
 
-export type ItemAction = 'checked_out' | 'checked_in' | 'already_scanned' | 'not_found' | 'unavailable' | 'other_user';
+export type ItemAction = 'checked_out' | 'checked_in' | 'already_scanned' | 'not_found' | 'unavailable' | 'other_user' | 'consumed';
 
 export interface ScannedItem {
   assetId: number;
@@ -9,6 +9,7 @@ export interface ScannedItem {
   category: string;
   action: ItemAction;
   timestamp: number;
+  itemType: 'asset' | 'consumable';
 }
 
 export interface SessionUser {

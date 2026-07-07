@@ -6,6 +6,7 @@
   const labels: Record<string, { text: string; cls: string }> = {
     checked_out: { text: 'Checked Out', cls: 'out' },
     checked_in:  { text: 'Checked In',  cls: 'in' },
+    consumed:    { text: 'Taken',        cls: 'out' },
     already_scanned: { text: 'Already Scanned', cls: 'warn' },
     not_found:   { text: 'Not Found',   cls: 'error' },
     unavailable: { text: 'Unavailable', cls: 'error' },

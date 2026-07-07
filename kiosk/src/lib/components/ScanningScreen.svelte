@@ -137,6 +137,62 @@
     scanning = true;
     lastError = '';
 
+    // Detect consumable QR codes: CONSUME-{id}
+    const consumableMatch = tag.match(/^CONSUME-(\d+)$/i);
+
+    if (consumableMatch) {
+      try {
+        const consumableId = parseInt(consumableMatch[1], 10);
+        const res = await fetch('/api/scan-consumable', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ consumableId, userId: $session.user!.id }),
+        });
+        const data = await res.json();
+
+        if (!res.ok || data.error) {
+          lastError = data.error ?? 'System error. Try again.';
+          playTone('error');
+          return;
+        }
+
+        const action: ItemAction = data.action;
+
+        if (action === 'not_found' || action === 'unavailable') {
+          session.addItem({
+            assetId: data.assetId ?? 0,
+            assetTag: data.assetTag ?? tag,
+            name: data.name ?? tag,
+            category: data.category ?? '',
+            action,
+            timestamp: Date.now(),
+            itemType: 'consumable',
+          });
+          playTone('error');
+          return;
+        }
+
+        session.addItem({
+          assetId: data.assetId ?? 0,
+          assetTag: data.assetTag ?? tag,
+          name: data.name ?? tag,
+          category: data.category ?? '',
+          action,
+          timestamp: Date.now(),
+          itemType: 'consumable',
+        });
+
+        playTone('success');
+      } catch {
+        lastError = 'Cannot reach system. Check connection.';
+        playTone('error');
+      } finally {
+        scanning = false;
+      }
+      return;
+    }
+
+    // Standard asset flow
     try {
       const res = await fetch('/api/scan-asset', {
         method: 'POST',
@@ -166,6 +222,7 @@
         category: data.category ?? '',
         action,
         timestamp: Date.now(),
+        itemType: 'asset',
       });
 
       playTone(action === 'checked_out' || action === 'checked_in' ? 'success' : 'error');
