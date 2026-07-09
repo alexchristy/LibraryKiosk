@@ -4,11 +4,17 @@
   $: checkedOut = $session.items.filter(i => i.action === 'checked_out').length;
   $: checkedIn  = $session.items.filter(i => i.action === 'checked_in').length;
   $: consumed   = $session.items.filter(i => i.action === 'consumed').length;
+  $: hasActivity = checkedOut > 0 || checkedIn > 0 || consumed > 0;
 </script>
 
-<div class="complete-screen">
-  <div class="checkmark">✓</div>
-  <h1>All Done!</h1>
+<div class="complete-screen" class:neutral={!hasActivity}>
+  {#if hasActivity}
+    <div class="checkmark">✓</div>
+    <h1>All Done!</h1>
+  {:else}
+    <div class="neutral-icon">—</div>
+    <h1 class="neutral-heading">Session Ended</h1>
+  {/if}
   <p class="name">Thanks, {$session.user?.name?.split(' ')[0]}!</p>
 
   <div class="summary">
@@ -30,8 +36,8 @@
         <span class="desc">{consumed === 1 ? 'consumable' : 'consumables'} taken</span>
       </div>
     {/if}
-    {#if checkedOut === 0 && checkedIn === 0 && consumed === 0}
-      <p class="none">No items were processed.</p>
+    {#if !hasActivity}
+      <p class="none">No items were checked out, returned, or taken.</p>
     {/if}
   </div>
 
@@ -51,10 +57,32 @@
     padding: 2rem;
   }
 
+  .complete-screen.neutral {
+    background: #f3f4f6;
+  }
+
   .checkmark {
     font-size: 6rem;
     color: #16a34a;
     animation: pop 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+  }
+
+  .neutral-icon {
+    width: 7rem;
+    height: 7rem;
+    border-radius: 50%;
+    border: 6px solid #9ca3af;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+    font-weight: 800;
+    color: #9ca3af;
+    animation: pop 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+  }
+
+  .neutral-heading {
+    color: #6b7280 !important;
   }
 
   @keyframes pop {
@@ -84,7 +112,7 @@
   .count { font-size: 3rem; font-weight: 800; }
   .desc  { font-size: 1rem; font-weight: 600; }
 
-  .none { font-size: 1.2rem; color: #888; }
+  .none { font-size: 1.2rem; color: #6b7280; }
 
   .returning { font-size: 1rem; color: #aaa; margin: 0; animation: fade 1s 2s ease-out forwards; opacity: 1; }
 
