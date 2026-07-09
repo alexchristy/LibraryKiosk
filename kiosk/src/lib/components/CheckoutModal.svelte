@@ -303,6 +303,7 @@
     border: 2px solid #e5e7eb;
     border-radius: 12px;
     overflow: hidden;
+    flex-shrink: 0;
   }
 
   .student-name {
@@ -349,6 +350,7 @@
     display: flex;
     justify-content: flex-end;
     margin-bottom: 0.5rem;
+    flex-shrink: 0;
   }
 
   .print-cat-btn {
