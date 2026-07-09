@@ -42,6 +42,13 @@
   function onKeydown(e: KeyboardEvent) {
     if (e.key === 'Enter') submit();
   }
+
+  function handleBlur() {
+    if (!modalOpen) {
+      // Short delay lets button clicks (e.g. "View Current Checkouts") register first
+      setTimeout(() => inputEl?.focus(), 10);
+    }
+  }
 </script>
 
 <div class="idle-screen">
@@ -57,6 +64,7 @@
         bind:this={inputEl}
         bind:value={input}
         on:keydown={onKeydown}
+        on:blur={handleBlur}
         type="text"
         inputmode="numeric"
         pattern="[0-9]*"
@@ -82,7 +90,7 @@
 </button>
 
 {#if modalOpen}
-  <CheckoutModal onClose={() => modalOpen = false} />
+  <CheckoutModal onClose={() => { modalOpen = false; setTimeout(() => inputEl?.focus(), 50); }} />
 {/if}
 
 <style>
