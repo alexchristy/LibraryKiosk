@@ -111,7 +111,11 @@
     if (e.key === 'Enter') {
       const tag = scanBuffer.trim();
       scanBuffer = '';
-      if (tag) processTag(tag);
+      if (tag) {
+        processTag(tag);
+      } else if ($session.showFinish) {
+        session.finish();
+      }
       return;
     }
 
